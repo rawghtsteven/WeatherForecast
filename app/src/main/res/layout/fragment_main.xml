@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:background="@color/black"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/city"
+        android:text="青岛"
+        android:textColor="@color/white"
+        android:textSize="40dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/temperature"
+        android:text="30º"
+        android:textColor="@color/white"
+        android:textSize="100dp"
+        android:layout_below="@+id/city"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="晴 25º~30º"
+        android:textColor="@color/white"
+        android:textSize="20dp"
+        android:layout_below="@+id/temperature"
+        android:layout_alignParentStart="true"
+        android:id="@+id/condition"
+        android:layout_alignParentLeft="true" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/wind"
+        android:text="东南风2级"
+        android:textColor="@color/white"
+        android:textSize="20dp"
+        android:layout_below="@+id/condition"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true" />
+
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/air"
+        android:text="空气质量: 优"
+        android:textColor="@color/white"
+        android:textSize="20dp"
+        android:layout_below="@+id/wind"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true" />
+
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:id="@+id/weather"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/relativeLayout"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tomorrow"
+            android:text="明日"
+            android:textColor="@color/white"
+            android:textSize="30dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/yesterday"
+            android:text="昨日"
+            android:textColor="@color/white"
+            android:textSize="30dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_above="@+id/yesImage"
+            android:layout_alignRight="@+id/yesImage"
+            android:layout_alignEnd="@+id/yesImage" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/thedayaftertomorrow"
+            android:text="后天"
+            android:textColor="@color/white"
+            android:textSize="30dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+
+        <ImageView
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:id="@+id/yesImage"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_below="@+id/tomorrow"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <ImageView
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:id="@+id/tomImage"
+            android:layout_alignTop="@+id/yesImage"
+            android:layout_alignLeft="@+id/tomorrow"
+            android:layout_alignStart="@+id/tomorrow" />
+
+        <ImageView
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:id="@+id/tdatImage"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="多云"
+            android:textColor="@color/white"
+            android:textSize="20dp"
+            android:id="@+id/yesType"
+            android:layout_below="@+id/yesImage"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="多云"
+            android:textColor="@color/white"
+            android:textSize="20dp"
+            android:id="@+id/tdatType"
+            android:layout_alignTop="@+id/tomType"
+            android:layout_alignLeft="@+id/tdatImage"
+            android:layout_alignStart="@+id/tdatImage" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="多云"
+            android:textColor="@color/white"
+            android:textSize="20dp"
+            android:id="@+id/tomType"
+            android:layout_above="@+id/yesTemp"
+            android:layout_alignLeft="@+id/tomImage"
+            android:layout_alignStart="@+id/tomImage" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="10~20"
+            android:textColor="@color/white"
+            android:textSize="17dp"
+            android:id="@+id/tomTemp"
+            android:layout_below="@+id/tomType"
+            android:layout_alignLeft="@+id/tomType"
+            android:layout_alignStart="@+id/tomType" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="10~20"
+            android:textColor="@color/white"
+            android:textSize="17dp"
+            android:id="@+id/tdatTemp"
+            android:layout_below="@+id/tdatType"
+            android:layout_alignLeft="@+id/tdatType"
+            android:layout_alignStart="@+id/tdatType" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="10~20"
+            android:textColor="@color/white"
+            android:textSize="17dp"
+            android:id="@+id/yesTemp"
+            android:layout_below="@+id/yesType"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

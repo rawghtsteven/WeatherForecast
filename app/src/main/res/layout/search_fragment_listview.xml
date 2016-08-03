@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/black">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/county"
+        android:text="崂山"
+        android:textSize="30dp"
+        android:textColor="@color/white"/>
+
+    <TextView
+        android:layout_marginBottom="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/PCC"
+        android:text="山东省 青岛市 崂山区"
+        android:textColor="@color/white"/>
+
+</LinearLayout>
