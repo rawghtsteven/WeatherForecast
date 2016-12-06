@@ -13,6 +13,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.mmga.metroloading.MetroLoadingView;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
 /**
  * Created by Rawght Steven on 7/31/16, 13.
  * Email:rawghtsteven@gmail.com
@@ -20,10 +26,26 @@ import android.widget.TextView;
 @SuppressLint("ValidFragment")
 public class MainFragment extends android.support.v4.app.Fragment {
 
+    @BindView(R.id.yesType) TextView YesType;
+    @BindView(R.id.yesTemp) TextView YesTemp;
+    @BindView(R.id.tomType) TextView TomType;
+    @BindView(R.id.tomTemp) TextView TomTemp;
+    @BindView(R.id.tdatType) TextView TdatType;
+    @BindView(R.id.tdatTemp) TextView TdatTemp;
+
+    @BindView(R.id.city) TextView city;
+    @BindView(R.id.temperature) TextView temperature;
+    @BindView(R.id.air) TextView air;
+    @BindView(R.id.condition) TextView condition;
+    @BindView(R.id.wind) TextView wind;
+
+    @BindView(R.id.weather) ImageView weatherImage;
+    @BindView(R.id.yesImage) ImageView yesImage;
+    @BindView(R.id.tomImage) ImageView tomImage;
+    @BindView(R.id.tdatImage) ImageView tdatImage;
+
     private WeatherBean weatherBean;
-    private TextView city, temperature, air, condition, wind;
-    private TextView YesType, YesTemp, TomType, TomTemp, TdatType, TdatTemp;
-    private ImageView weatherImage, yesImage, tomImage, tdatImage;
+    private Unbinder unbinder;
 
     private static final String QING = "晴";
     private static final String DUOYUN = "多云";
@@ -49,30 +71,16 @@ public class MainFragment extends android.support.v4.app.Fragment {
         this.weatherBean = bean;
     }
 
+    @SuppressLint("SetTextI18n")
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main,container,false);
+        unbinder = ButterKnife.bind(this,view);
+
         Typeface SemiLight =Typeface.createFromAsset(getActivity().getAssets(),"fonts/SegoeSemiLight.TTF");
         Typeface Segoe = Typeface.createFromAsset(getActivity().getAssets(),"fonts/Segoe.TTF");
         Typeface Light = Typeface.createFromAsset(getActivity().getAssets(),"fonts/SegoeLight.TTF");
-
-        city = (TextView) view.findViewById(R.id.city);
-        temperature = (TextView) view.findViewById(R.id.temperature);
-        air = (TextView) view.findViewById(R.id.air);
-        condition = (TextView) view.findViewById(R.id.condition);
-        wind = (TextView) view.findViewById(R.id.wind);
-
-        YesType = (TextView) view.findViewById(R.id.yesType);
-        YesTemp = (TextView) view.findViewById(R.id.yesTemp);
-        TomType = (TextView) view.findViewById(R.id.tomType);
-        TomTemp = (TextView) view.findViewById(R.id.tomTemp);
-        TdatType = (TextView) view.findViewById(R.id.tdatType);
-        TdatTemp = (TextView) view.findViewById(R.id.tdatTemp);
-        weatherImage = (ImageView) view.findViewById(R.id.weather);
-        yesImage = (ImageView) view.findViewById(R.id.yesImage);
-        tomImage = (ImageView) view.findViewById(R.id.tomImage);
-        tdatImage = (ImageView) view.findViewById(R.id.tdatImage);
 
         city.setTypeface(Segoe);
         temperature.setTypeface(Light);
@@ -87,22 +95,20 @@ public class MainFragment extends android.support.v4.app.Fragment {
         TdatType.setTypeface(Light);
         TdatTemp.setTypeface(Light);
 
-        setWeatherPic();
-
-        city.setText(weatherBean.getCounty());
+        city.setText(weatherBean.getCity());
         String temp = weatherBean.getTemperature();
         StringBuilder builder = new StringBuilder(temp);
-        builder.replace(2,3,"º");
+        builder.reverse().deleteCharAt(0).reverse();
         String mintemp = weatherBean.getMin_tem();
-        StringBuilder builder1 = new StringBuilder(mintemp);
-        builder1.replace(2,3,"º");
         String maxtemp = weatherBean.getMax_tem();
+        StringBuilder builder1 = new StringBuilder(mintemp);
+        builder1.reverse().deleteCharAt(0).reverse();
         StringBuilder builder2 = new StringBuilder(maxtemp);
-        builder2.replace(2,3,"º");
-        temperature.setText(builder.toString());
-        condition.setText(weatherBean.getWeather()+" "+builder1.toString()+"~"+builder2.toString());
-        wind.setText(weatherBean.getWindDirection()+" "+weatherBean.getWindStrength());
-        //air.setText("PM2.5 "+weatherBean.getPM2_5());
+        builder2.reverse().deleteCharAt(0).reverse();
+        temperature.setText(builder.toString()+"°");
+        condition.setText(weatherBean.getWeather()+"  "+builder1+"°"+"~"+builder2+"°");
+        wind.setText(weatherBean.getWindDirection()+"  "+weatherBean.getWindStrength());
+        air.setText("PM2.5  "+weatherBean.getPM2_5());
 
         String yesType = weatherBean.getYesType();
         String yesLowTemp = weatherBean.getYesLowTemp();
@@ -115,28 +121,31 @@ public class MainFragment extends android.support.v4.app.Fragment {
         String tdatHighTemp = weatherBean.getTdatHighTemp();
 
         StringBuilder builder3 = new StringBuilder(yesLowTemp);
-        builder3.replace(2,3,"º");
+        builder3.reverse().deleteCharAt(0).reverse();
         StringBuilder builder4 = new StringBuilder(yesHighTemp);
-        builder4.replace(2,3,"º");
+        builder4.reverse().deleteCharAt(0).reverse();
         StringBuilder builder5 = new StringBuilder(tomLowTemp);
-        builder5.replace(2,3,"º");
+        builder5.reverse().deleteCharAt(0).reverse();
         StringBuilder builder6 = new StringBuilder(tomHighTemp);
-        builder6.replace(2,3,"º");
+        builder6.reverse().deleteCharAt(0).reverse();
         StringBuilder builder7 = new StringBuilder(tdatLowTemp);
-        builder7.replace(2,3,"º");
+        builder7.reverse().deleteCharAt(0).reverse();
         StringBuilder builder8 = new StringBuilder(tdatHighTemp);
-        builder8.replace(2,3,"º");
+        builder8.reverse().deleteCharAt(0).reverse();
 
         YesType.setText(yesType);
-        YesTemp.setText(builder3.toString()+"~"+builder4.toString());
+        YesTemp.setText(builder3+"°"+"~"+builder4+"°");
         TomType.setText(tomType);
-        TomTemp.setText(builder5.toString()+"~"+builder6.toString());
+        TomTemp.setText(builder5+"°"+"~"+builder6+"°");
         TdatType.setText(tdatType);
-        TdatTemp.setText(builder7.toString()+"~"+builder8.toString());
+        TdatTemp.setText(builder7+"°"+"~"+builder8+"°");
+
+        setWeatherPic();
         return view;
     }
 
     private void setWeatherPic() {
+
         switch (weatherBean.getWeather()){
             case QING:
                 weatherImage.setImageResource(R.drawable.sunny);
@@ -372,5 +381,11 @@ public class MainFragment extends android.support.v4.app.Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 }

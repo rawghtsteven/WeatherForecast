@@ -22,9 +22,25 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+import okhttp3.Interceptor;
+import okhttp3.Response;
+import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.http.GET;
+import retrofit2.http.Query;
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by Rawght Steven on 7/29/16, 11.
@@ -32,40 +48,27 @@ import java.util.List;
  */
 public class SearchFragment extends DialogFragment {
 
-    private String INPUT;
-    List<WeatherBean> weatherBeenList = new ArrayList<>();
-    CallBackValue callBackValue;
-    ListView listView;
+    @BindView(R.id.list_view) ListView listView;
 
-    public String getINPUT() {
-        return INPUT;
-    }
+    public static final String URL = "http://apis.baidu.com/apistore/weatherservice/";
+    public static final String TAG = "SEARCH CITY";
+    private String INPUT;
+    private Unbinder unbinder;
+    CallBackValue callBackValue;
+    MyAdapter myAdapter;
+    List<WeatherBean> beans = new ArrayList<>();
 
     public void setINPUT(String INPUT) {
         this.INPUT = INPUT;
-    }
-
-    Handler handler = new Handler(){
-        public void handleMessage(Message message){
-            switch (message.what){
-                case 0x123:
-                    weatherBeenList = (List<WeatherBean>) message.obj;
-                    displayInfo(weatherBeenList);
-                    break;
-            }
-        }
-    };
-
-    private void displayInfo(List<WeatherBean> weatherBeenList) {
-        MyAdapter adapter = new MyAdapter(weatherBeenList);
-        listView.setAdapter(adapter);
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.search_fragment,container,false);
-        listView = (ListView) view.findViewById(R.id.list_view);
+        unbinder = ButterKnife.bind(this,view);
+        myAdapter = new MyAdapter(beans);
+        listView.setAdapter(myAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -80,10 +83,60 @@ public class SearchFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        String httpUrl = "http://apis.baidu.com/apistore/weatherservice/citylist?";
-        String httpArg = "cityname="+ URLEncoder.encode(INPUT);
-        String url = httpUrl+httpArg;
-        parseJSON(url);
+        loadData();
+    }
+
+    private void loadData() {
+        okhttp3.OkHttpClient.Builder builder = new okhttp3.OkHttpClient.Builder()
+                .addInterceptor(new Interceptor() {
+                    @Override
+                    public Response intercept(Chain chain) throws IOException {
+                        okhttp3.Request request = chain.request();
+                        okhttp3.Request.Builder builder1 = request.newBuilder();
+                        okhttp3.Request.Builder builder2 = builder1.addHeader("apikey","0089e54ddc9caab4f66b665d0242ef59");
+                        return chain.proceed(builder2.build());
+                    }
+                })
+                .retryOnConnectionFailure(true);
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(URL)
+                .client(builder.build())
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .build();
+
+        CityListService service = retrofit.create(CityListService.class);
+        service.getCityList(INPUT)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+
+                .subscribe(new Subscriber<CityListBean>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.e(TAG,"Search completed");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG,"Search failed");
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onNext(CityListBean cityListBean) {
+                        Log.e(TAG,cityListBean.getRetData().get(0).getName_cn()+"  "+cityListBean.getRetData().get(0).getArea_id());
+                        for (int i=0;i<cityListBean.getRetData().size();i++){
+                            WeatherBean bean = new WeatherBean();
+                            bean.setCounty(cityListBean.getRetData().get(i).getName_cn());
+                            bean.setCity(cityListBean.getRetData().get(i).getDistrict_cn());
+                            bean.setProvince(cityListBean.getRetData().get(i).getProvince_cn());
+                            bean.setAreaId(cityListBean.getRetData().get(i).getArea_id());
+                            beans.add(bean);
+                        }
+                        myAdapter.notifyDataSetChanged();
+                    }
+                });
     }
 
     @Override
@@ -92,43 +145,10 @@ public class SearchFragment extends DialogFragment {
         callBackValue = (CallBackValue) activity;
     }
 
-    private void parseJSON(final String url) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                String response = HttpUtil.HttpGet(url,"GET");
-                try {
-                    JSONObject jsonObject = new JSONObject(response);
-                    int errNum = jsonObject.getInt("errNum");
-                    String errMsg = jsonObject.getString("errMsg");
-                    Log.e("ERROR",errMsg+" "+errNum);
-
-                    JSONArray retData = jsonObject.getJSONArray("retData");
-                    List<WeatherBean> beans = new ArrayList<>();
-                    for (int i=0;i<retData.length();i++){
-                        JSONObject object = retData.getJSONObject(i);
-                        String Province = object.getString("province_cn");
-                        String City = object.getString("district_cn");
-                        String County = object.getString("name_cn");
-                        int code = object.getInt("area_id");
-
-                        WeatherBean weatherBean = new WeatherBean();
-                        weatherBean.setProvince(Province);
-                        weatherBean.setCity(City);
-                        weatherBean.setCounty(County);
-                        weatherBean.setAreaId(code);
-                        beans.add(weatherBean);
-                    }
-                    Message message = new Message();
-                    message.what = 0x123;
-                    message.obj = beans;
-                    handler.sendMessage(message);
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 
     private class MyAdapter extends BaseAdapter {
@@ -141,12 +161,12 @@ public class SearchFragment extends DialogFragment {
 
         @Override
         public int getCount() {
-            return weatherBeenList.size();
+            return weatherBeanList.size();
         }
 
         @Override
         public Object getItem(int position) {
-            WeatherBean weatherBean = weatherBeenList.get(position);
+            WeatherBean weatherBean = weatherBeanList.get(position);
             return weatherBean;
         }
 
@@ -159,7 +179,7 @@ public class SearchFragment extends DialogFragment {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             ViewHolder viewHolder;
-            WeatherBean bean = weatherBeenList.get(position);
+            WeatherBean bean = weatherBeanList.get(position);
             if (convertView==null){
                 convertView = LayoutInflater.from(getActivity().getApplicationContext()).inflate(R.layout.search_fragment_listview,null);
                 viewHolder = new ViewHolder();
@@ -180,15 +200,6 @@ public class SearchFragment extends DialogFragment {
             viewHolder.County.setText(bean.getCounty());
             viewHolder.PCC.setText(bean.getProvince()+"省 "+bean.getCity()+"市 ");
 
-            /*convertView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.e("Clicked!","");
-                    callBackValue.sendValue(bean);
-                    dismiss();
-                }
-            });*/
-
             return convertView;
         }
     }
@@ -199,5 +210,10 @@ public class SearchFragment extends DialogFragment {
 
     public interface CallBackValue {
         void sendValue(WeatherBean bean);
+    }
+
+    public interface CityListService{
+        @GET("citylist")
+        Observable<CityListBean> getCityList(@Query("cityname")String cityname);
     }
 }

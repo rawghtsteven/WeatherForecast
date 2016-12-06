@@ -149,14 +149,6 @@ public class WeatherBean {
         City = city;
     }
 
-    public String getCounty() {
-        return County;
-    }
-
-    public void setCounty(String county) {
-        County = county;
-    }
-
     public String getWeather() {
         return Weather;
     }
@@ -195,5 +187,13 @@ public class WeatherBean {
 
     public void setWindStrength(String windStrength) {
         WindStrength = windStrength;
+    }
+
+    public String getCounty() {
+        return County;
+    }
+
+    public void setCounty(String county) {
+        County = county;
     }
 }
