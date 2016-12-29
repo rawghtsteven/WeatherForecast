@@ -1,5 +1,8 @@
 # WeatherForecast
-纯净的Metro风格天气预报APP。  
+
+![alt](http://ww2.sinaimg.cn/mw690/be0cd226jw1fb7lio15vwj20b40b4gmj.jpg)
+
+纯净的Metro风格天气预报APP。
 A Pure Metro Designed Weather Forecast Application.
 
 ## 下载 | Download
