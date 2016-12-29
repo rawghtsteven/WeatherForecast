@@ -3,7 +3,7 @@
 A Pure Metro Designed Weather Forecast Application.
 
 ## 下载 | Download
-![alt](http://ww4.sinaimg.cn/large/be0cd226jw1f768isl2obj205k05kglw.jpg)
+https://fir.im/5d3j
 
 ## 数据接口 | API
 [百度APIStore](http://apistore.baidu.com/apiworks/servicedetail/112.html)  
