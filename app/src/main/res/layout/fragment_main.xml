@@ -58,131 +58,142 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true">
 
-        <TextView
+        <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/tomorrow"
-            android:text="明日"
-            android:textColor="@color/white"
-            android:textSize="30dp"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/yesterday"
-            android:text="昨日"
-            android:textColor="@color/white"
-            android:textSize="30dp"
+            android:id="@+id/tomView"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_above="@+id/yesImage"
-            android:layout_alignRight="@+id/yesImage"
-            android:layout_alignEnd="@+id/yesImage" />
+            android:layout_alignParentStart="true">
 
-        <TextView
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tomorrow"
+                android:text="明天"
+                android:textColor="@color/white"
+                android:textSize="30dp"
+                android:layout_centerHorizontal="true"
+                />
+
+            <ImageView
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:id="@+id/tImage"
+                android:layout_below="@+id/tomorrow"
+                android:layout_centerHorizontal="true"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--"
+                android:textColor="@color/white"
+                android:textSize="17sp"
+                android:id="@+id/tType"
+                android:layout_below="@id/tImage"
+                android:layout_centerHorizontal="true"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--"
+                android:textColor="@color/white"
+                android:textSize="17sp"
+                android:id="@+id/tTemperature"
+                android:layout_below="@id/tType"
+                android:layout_centerHorizontal="true"
+                />
+
+        </RelativeLayout>
+
+        <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/thedayaftertomorrow"
+            android:id="@+id/twodatView"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/twodat"
+                android:text="外后天"
+                android:textColor="@color/white"
+                android:textSize="30dp"
+                android:layout_centerHorizontal="true"
+                />
+
+            <ImageView
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:id="@+id/twodatImage"
+                android:layout_below="@id/twodat"
+                android:layout_centerHorizontal="true"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--"
+                android:textColor="@color/white"
+                android:textSize="17sp"
+                android:id="@+id/twodatType"
+                android:layout_below="@+id/twodatImage"
+                android:layout_centerHorizontal="true"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--"
+                android:textColor="@color/white"
+                android:textSize="17sp"
+                android:id="@+id/twodatTemp"
+                android:layout_below="@+id/twodatType"
+                android:layout_centerHorizontal="true"
+                />
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/tdat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
             android:text="后天"
             android:textColor="@color/white"
-            android:textSize="30dp"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true" />
-
-        <ImageView
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:id="@+id/yesImage"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:layout_below="@+id/tomorrow"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
-
-        <ImageView
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:id="@+id/tomImage"
-            android:layout_alignTop="@+id/yesImage"
-            android:layout_alignLeft="@+id/tomorrow"
-            android:layout_alignStart="@+id/tomorrow" />
+            android:textSize="30dp" />
 
         <ImageView
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:id="@+id/tdatImage"
-            android:layout_centerVertical="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true" />
+            android:layout_below="@id/tdat"
+            android:layout_centerHorizontal="true"
+            />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="--"
             android:textColor="@color/white"
-            android:textSize="20dp"
+            android:textSize="17sp"
             android:id="@+id/tdatType"
-            android:layout_alignTop="@+id/tomType"
-            android:layout_alignLeft="@+id/tdatImage"
-            android:layout_alignStart="@+id/tdatImage" />
+            android:layout_below="@id/tdatImage"
+            android:layout_centerHorizontal="true"
+            />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="--"
             android:textColor="@color/white"
-            android:textSize="20dp"
-            android:id="@+id/tomType"
-            android:layout_above="@+id/yesTemp"
-            android:layout_alignLeft="@+id/tomImage"
-            android:layout_alignStart="@+id/tomImage" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="--"
-            android:textColor="@color/white"
-            android:textSize="17dp"
-            android:id="@+id/tomTemp"
-            android:layout_below="@+id/tomType"
-            android:layout_alignLeft="@+id/tomType"
-            android:layout_alignStart="@+id/tomType" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="--"
-            android:textColor="@color/white"
-            android:textSize="17dp"
+            android:textSize="17sp"
             android:id="@+id/tdatTemp"
             android:layout_below="@+id/tdatType"
-            android:layout_alignLeft="@+id/tdatType"
-            android:layout_alignStart="@+id/tdatType" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="--"
-            android:textColor="@color/white"
-            android:textSize="17dp"
-            android:id="@+id/yesTemp"
-            android:layout_below="@+id/yesType"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="--"
-            android:textColor="@color/white"
-            android:textSize="20dp"
-            android:id="@+id/yesType"
-            android:layout_below="@+id/yesImage"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
+            android:layout_centerHorizontal="true"
+            />
 
     </RelativeLayout>
 

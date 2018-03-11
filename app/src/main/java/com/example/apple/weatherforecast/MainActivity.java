@@ -6,7 +6,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
+import android.nfc.Tag;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -27,7 +29,6 @@ import android.view.WindowManager;
 import android.widget.RelativeLayout;
 
 import com.mmga.metroloading.MetroLoadingView;
-import com.readystatesoftware.systembartint.SystemBarTintManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.GET;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 import rx.Observable;
 import rx.Subscriber;
@@ -56,6 +58,9 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ca
     MetroLoadingView loadingView;
 
     public static final String TAG = "MAIN ACTIVITY";
+    public static final String API_KEY = "f405d25941d842408d2e2c8d44248e28";
+    public static final String base_url = "http://api.shujuzhihui.cn/api/weatherForecast/";
+    public static final String NEED_MORE_DAY = String.valueOf(1);
 
     private MyFragmentPagerAdapter adapter;
     List<android.support.v4.app.Fragment> fragmentList = new ArrayList<>();
@@ -85,7 +90,6 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ca
         adapter.setFragmentList(fragmentList);
         pager.setAdapter(adapter);
 
-        initSystemBar(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -108,44 +112,31 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ca
             snackbar.show();
 
         }else {
-
-            if (sharedPreferences.contains("CITY")){
-                WeatherBean bean = new WeatherBean();
-                bean.setCity(sharedPreferences.getString("CITY","北京"));
-                bean.setAreaId(sharedPreferences.getInt("CITYCODE",101010100));
-                loadData(bean);
+            if (sharedPreferences.contains("CityID")){
+                String cityID = sharedPreferences.getString("CityID","101010100");
+                loadWeatherForNow(cityID);
+            }else {
+                loadWeatherForNow("101010100");
             }
         }
     }
 
-    private void loadData(WeatherBean bean) {
+    private void loadWeatherForNow(String cityID) {
 
-        String baseUrl = "http://apis.baidu.com/apistore/weatherservice/";
-
-        okhttp3.OkHttpClient.Builder builder = new okhttp3.OkHttpClient.Builder()
-                .addInterceptor(new Interceptor() {
-                    @Override
-                    public Response intercept(Chain chain) throws IOException {
-                        okhttp3.Request request = chain.request();
-                        okhttp3.Request.Builder builder1 = request.newBuilder();
-                        okhttp3.Request.Builder builder2 = builder1.addHeader("apikey","0089e54ddc9caab4f66b665d0242ef59");
-                        return chain.proceed(builder2.build());
-                    }
-                })
-                .retryOnConnectionFailure(true);
+        okhttp3.OkHttpClient.Builder builder = new okhttp3.OkHttpClient.Builder().retryOnConnectionFailure(true);
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(baseUrl)
+                .baseUrl(base_url)
                 .client(builder.build())
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();
 
         WeatherService service = retrofit.create(WeatherService.class);
-        service.getWeather(bean.getCity(),bean.getAreaId())
+        service.getWeather(API_KEY,cityID,NEED_MORE_DAY)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<Bean>() {
+                .subscribe(new Subscriber<WeatherBean>() {
                     @Override
                     public void onCompleted() {
                         Log.e(TAG,"Get weather completed");
@@ -159,30 +150,11 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ca
                     }
 
                     @Override
-                    public void onNext(Bean response) {
-                        Log.e(TAG,response.getRetData().getCity()+" "+
-                                response.getRetData().getToday().getCurTemp()+" "+
-                                response.getRetData().getToday().getType()
-                        );
-                        weatherBean = new WeatherBean();
-                        weatherBean.setCity(response.getRetData().getCity());
-                        weatherBean.setAreaId(response.getRetData().getCityid());
-                        weatherBean.setWeather(response.getRetData().getToday().getType());
-                        weatherBean.setMax_tem(response.getRetData().getToday().getHightemp());
-                        weatherBean.setMin_tem(response.getRetData().getToday().getLowtemp());
-                        weatherBean.setTemperature(response.getRetData().getToday().getCurTemp());
-                        weatherBean.setWindDirection(response.getRetData().getToday().getFengxiang());
-                        weatherBean.setWindStrength(response.getRetData().getToday().getFengli());
-                        weatherBean.setPM2_5(response.getRetData().getToday().getAqi());
-                        weatherBean.setYesType(response.getRetData().getHistory().get(1).getType());
-                        weatherBean.setYesHighTemp(response.getRetData().getHistory().get(1).getHightemp());
-                        weatherBean.setYesLowTemp(response.getRetData().getHistory().get(1).getLowtemp());
-                        weatherBean.setTomType(response.getRetData().getForecast().get(0).getType());
-                        weatherBean.setTomHighTemp(response.getRetData().getForecast().get(0).getHightemp());
-                        weatherBean.setTomLowTemp(response.getRetData().getForecast().get(0).getLowtemp());
-                        weatherBean.setTdatType(response.getRetData().getForecast().get(1).getType());
-                        weatherBean.setTdatLowTemp(response.getRetData().getForecast().get(1).getLowtemp());
-                        weatherBean.setTdatHighTemp(response.getRetData().getForecast().get(1).getHightemp());
+                    public void onNext(WeatherBean weatherBean) {
+                        //Log.e(TAG, weatherBean.getShowapi_res_body().getRet_code());
+                        Log.e(TAG, weatherBean.getShowapi_res_body().getCityInfo().getC5()+" "+
+                                weatherBean.getShowapi_res_body().getNow().getWeather()+" "+
+                                weatherBean.getShowapi_res_body().getNow().getTemperature());
                         MainFragment fragment = new MainFragment(weatherBean);
                         fragmentList.add(fragment);
                         adapter.setFragmentList(fragmentList);
@@ -208,6 +180,13 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ca
         switch (item.getItemId()){
             case R.id.action_search:
                 SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
+                searchView.setQueryHint("请输入要查找的城市名");
+                searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+                    @Override
+                    public boolean onClose() {
+                        return false;
+                    }
+                });
                 searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                     @Override
                     public boolean onQueryTextSubmit(String query) {
@@ -219,19 +198,18 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ca
 
                     @Override
                     public boolean onQueryTextChange(String newText) {
-                        searchFragment = new SearchFragment();
-                        searchFragment.setINPUT(newText);
-                        getFragmentManager().beginTransaction().replace(R.id.relative_layout,searchFragment).commit();
                         return true;
                     }
                 });
                 break;
             case R.id.share:
                 Intent shareIntent = new Intent();
-                String shareText = "今天"+ weatherBean.getCity()+"的天气是"+
-                        weatherBean.getWeather() +" "+weatherBean.getTemperature()+
-                        "\n"+weatherBean.getWindDirection()+weatherBean.getWindStrength()+
-                        "\n"+"PM 2.5是"+weatherBean.getPM2_5()+
+                String shareText = "今天"+ weatherBean.getShowapi_res_body().getCityInfo().getC5()+"的天气是"+
+                        weatherBean.getShowapi_res_body().getNow().getWeather() +" "+weatherBean.getShowapi_res_body().getNow().getTemperature()+
+                        "\n"+weatherBean.getShowapi_res_body().getNow().getWind_direction()+weatherBean.getShowapi_res_body().getNow().getWind_power()+
+                        "\n"+"空气湿度"+weatherBean.getShowapi_res_body().getNow().getSd()+
+                        "\n"+"空气质量为"+weatherBean.getShowapi_res_body().getNow().getAqiDetail().getQuality()+
+                        "\n"+"PM2.5指数为"+weatherBean.getShowapi_res_body().getNow().getAqiDetail().getPm2_5()+
                         "\n"+"看天气就用天气预报，简单又好用的天气软件，点击下面的地址即可下载："+
                         "\n"+"http://fir.im/5d3j";
                 shareIntent.setAction(Intent.ACTION_SEND);
@@ -243,38 +221,6 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ca
         return super.onOptionsItemSelected(item);
     }
 
-    public static void initSystemBar(Activity activity) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            setTranslucentStatus(activity, true);}
-        SystemBarTintManager tintManager = new SystemBarTintManager(activity);
-        tintManager.setStatusBarTintEnabled(true);
-        // 使用颜色资源
-        tintManager.setStatusBarTintResource(R.color.black);
-    }
-
-    @TargetApi(19)
-
-    private static void setTranslucentStatus(Activity activity, boolean on) {
-        Window win = activity.getWindow();
-        WindowManager.LayoutParams winParams = win.getAttributes();
-        final int bits = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
-        if (on) {
-            winParams.flags |= bits;
-        } else {
-            winParams.flags &= ~bits;
-        }
-        win.setAttributes(winParams);
-    }
-
-    @Override
-    public void sendValue(WeatherBean bean) {
-        Log.e("RECIEVED!", String.valueOf(bean));
-        editor.putString("CITY",bean.getCity());
-        editor.putInt("CITYCODE",bean.getAreaId());
-        editor.commit();
-        loadData(bean);
-    }
-
     @Override
     public void stateChangeListener(boolean InternetState) {
         if (InternetState){
@@ -282,16 +228,17 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Ca
             sharedPreferences = getSharedPreferences("CURRENTCITY",MODE_PRIVATE);
             editor = sharedPreferences.edit();
             if (sharedPreferences.contains("CITY")){
-                WeatherBean bean = new WeatherBean();
-                bean.setCity(sharedPreferences.getString("CITY","北京"));
-                bean.setAreaId(sharedPreferences.getInt("CITYCODE",101010100));
-                loadData(bean);
+                String cityName = sharedPreferences.getString("CITY","北京");
+                loadWeatherForNow(cityName);
             }
         }
     }
 
-    public interface WeatherService{
-        @GET("recentweathers")
-        Observable<Bean> getWeather(@Query("cityname")String cityname, @Query("cityid")int cityid);
+    @Override
+    public void sendValue(String cityId) {
+        Log.e(TAG, "CITY ID: " + String.valueOf(cityId));
+        editor.putString("CityID",cityId);
+        editor.commit();
+        loadWeatherForNow(cityId);
     }
 }

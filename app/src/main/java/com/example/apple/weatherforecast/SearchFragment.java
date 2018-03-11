@@ -17,6 +17,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -50,13 +51,12 @@ public class SearchFragment extends DialogFragment {
 
     @BindView(R.id.list_view) ListView listView;
 
-    public static final String URL = "http://apis.baidu.com/apistore/weatherservice/";
-    public static final String TAG = "SEARCH CITY";
+    public static final String TAG = "SEARCH FRAGMENT";
     private String INPUT;
     private Unbinder unbinder;
     CallBackValue callBackValue;
     MyAdapter myAdapter;
-    List<WeatherBean> beans = new ArrayList<>();
+    List<CityBean.showapi_res_body.City> beans = new ArrayList<>();
 
     public void setINPUT(String INPUT) {
         this.INPUT = INPUT;
@@ -67,13 +67,11 @@ public class SearchFragment extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.search_fragment,container,false);
         unbinder = ButterKnife.bind(this,view);
-        myAdapter = new MyAdapter(beans);
-        listView.setAdapter(myAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                WeatherBean mbean = (WeatherBean) parent.getItemAtPosition(position);
-                callBackValue.sendValue(mbean);
+                CityBean.showapi_res_body.City mbean = (CityBean.showapi_res_body.City) parent.getItemAtPosition(position);
+                callBackValue.sendValue(mbean.getAreaid());
                 dismiss();
             }
         });
@@ -87,31 +85,20 @@ public class SearchFragment extends DialogFragment {
     }
 
     private void loadData() {
-        okhttp3.OkHttpClient.Builder builder = new okhttp3.OkHttpClient.Builder()
-                .addInterceptor(new Interceptor() {
-                    @Override
-                    public Response intercept(Chain chain) throws IOException {
-                        okhttp3.Request request = chain.request();
-                        okhttp3.Request.Builder builder1 = request.newBuilder();
-                        okhttp3.Request.Builder builder2 = builder1.addHeader("apikey","0089e54ddc9caab4f66b665d0242ef59");
-                        return chain.proceed(builder2.build());
-                    }
-                })
-                .retryOnConnectionFailure(true);
+        okhttp3.OkHttpClient.Builder builder = new okhttp3.OkHttpClient.Builder().retryOnConnectionFailure(true);
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(URL)
+                .baseUrl(MainActivity.base_url)
                 .client(builder.build())
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();
 
-        CityListService service = retrofit.create(CityListService.class);
-        service.getCityList(INPUT)
+        WeatherService service = retrofit.create(WeatherService.class);
+        service.getCity(MainActivity.API_KEY,INPUT)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-
-                .subscribe(new Subscriber<CityListBean>() {
+                .subscribe(new Subscriber<CityBean>() {
                     @Override
                     public void onCompleted() {
                         Log.e(TAG,"Search completed");
@@ -124,17 +111,13 @@ public class SearchFragment extends DialogFragment {
                     }
 
                     @Override
-                    public void onNext(CityListBean cityListBean) {
-                        Log.e(TAG,cityListBean.getRetData().get(0).getName_cn()+"  "+cityListBean.getRetData().get(0).getArea_id());
-                        for (int i=0;i<cityListBean.getRetData().size();i++){
-                            WeatherBean bean = new WeatherBean();
-                            bean.setCounty(cityListBean.getRetData().get(i).getName_cn());
-                            bean.setCity(cityListBean.getRetData().get(i).getDistrict_cn());
-                            bean.setProvince(cityListBean.getRetData().get(i).getProvince_cn());
-                            bean.setAreaId(cityListBean.getRetData().get(i).getArea_id());
-                            beans.add(bean);
+                    public void onNext(CityBean cityBean) {
+                        if (!cityBean.getShowapi_res_body().getRet_code().equals("0")){
+                            Toast.makeText(getActivity(),"您输入的城市有误",Toast.LENGTH_SHORT).show();
+                        }else {
+                            myAdapter = new MyAdapter(cityBean.getShowapi_res_body().getList());
+                            listView.setAdapter(myAdapter);
                         }
-                        myAdapter.notifyDataSetChanged();
                     }
                 });
     }
@@ -153,21 +136,21 @@ public class SearchFragment extends DialogFragment {
 
     private class MyAdapter extends BaseAdapter {
 
-        private List<WeatherBean> weatherBeanList = new ArrayList<>();
+        private List<CityBean.showapi_res_body.City> cityList = new ArrayList<>();
 
-        public MyAdapter(List<WeatherBean> weatherBeenList) {
-            this.weatherBeanList = weatherBeenList;
+        public MyAdapter(List<CityBean.showapi_res_body.City> cityList) {
+            this.cityList = cityList;
         }
 
         @Override
         public int getCount() {
-            return weatherBeanList.size();
+            return cityList.size();
         }
 
         @Override
         public Object getItem(int position) {
-            WeatherBean weatherBean = weatherBeanList.get(position);
-            return weatherBean;
+            CityBean.showapi_res_body.City city = cityList.get(position);
+            return city;
         }
 
         @Override
@@ -179,7 +162,7 @@ public class SearchFragment extends DialogFragment {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             ViewHolder viewHolder;
-            WeatherBean bean = weatherBeanList.get(position);
+            CityBean.showapi_res_body.City bean = cityList.get(position);
             if (convertView==null){
                 convertView = LayoutInflater.from(getActivity().getApplicationContext()).inflate(R.layout.search_fragment_listview,null);
                 viewHolder = new ViewHolder();
@@ -197,8 +180,12 @@ public class SearchFragment extends DialogFragment {
 
             viewHolder.County.setTypeface(Segoe);
             viewHolder.PCC.setTypeface(SemiLight);
-            viewHolder.County.setText(bean.getCounty());
-            viewHolder.PCC.setText(bean.getProvince()+"省 "+bean.getCity()+"市 ");
+
+            viewHolder.County.setText(bean.getArea());
+            viewHolder.PCC.setText(bean.getProv()+"省 "+
+                    bean.getDistric()+"市 "+
+                    bean.getArea()+"区"
+            );
 
             return convertView;
         }
@@ -209,11 +196,6 @@ public class SearchFragment extends DialogFragment {
     }
 
     public interface CallBackValue {
-        void sendValue(WeatherBean bean);
-    }
-
-    public interface CityListService{
-        @GET("citylist")
-        Observable<CityListBean> getCityList(@Query("cityname")String cityname);
+        void sendValue(String cityId);
     }
 }
