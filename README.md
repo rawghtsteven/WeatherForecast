@@ -9,7 +9,7 @@ A Pure Metro Designed Weather Forecast Application.
 https://fir.im/5d3j
 
 ## 数据接口 | API
-[百度APIStore](http://apistore.baidu.com/apiworks/servicedetail/112.html)  
+[数据智慧](http://www.shujuzhihui.cn/applyForData/1883）  
 
 ## 截图 | Screenshots
 
